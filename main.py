@@ -41,6 +41,11 @@ models.Base.metadata.create_all(bind=engine)
 # db: Session = Depends(get_db) (pass in to routes when doing sql stuff)
 
 
+@app.get("/words")
+def send_words():
+    return "hello"
+
+
 @app.get("/spells/", response_model=list[schemas.Spell],
          )
 def read_spells(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
