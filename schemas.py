@@ -60,8 +60,6 @@ class SpellCreate(SpellBase):
 
 class Spell(SpellBase):
     id: int
-    spell_character_classes: list[CharacterClass] = []
-    spell_components: list[SpellComponent] = []
 
     class Config:
         orm_mode = True

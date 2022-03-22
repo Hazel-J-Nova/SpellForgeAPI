@@ -1,3 +1,4 @@
+import re
 import bcrypt
 
 
@@ -35,15 +36,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# pwd_context = CryptContext(schemes=['bcrypt'])
+
 models.Base.metadata.create_all(bind=engine)
-
-# db: Session = Depends(get_db) (pass in to routes when doing sql stuff)
-
-
-@app.get("/words")
-def send_words():
-    return "hello"
 
 
 @app.get("/spells/", response_model=list[schemas.Spell],
@@ -59,13 +53,18 @@ def get_spell(spell_name: str, db: Session = Depends(get_db),):
     return spell
 
 
-@app.post("/spells/", response_model=schemas.Spell)
-def create_spell(spell: schemas.SpellCreate, db: Session = Depends(get_db), key: str = ""):
-    hashed = os.getenv("HASHED")
-    if not bcrypt.checkpw(key, hashed):
+@app.post("/spells/")
+def create_spell(request: Request, spell: schemas.SpellCreate, db: Session = Depends(get_db), ):
+    key = request.query_params["key"]
+    salt = bcrypt.gensalt(4)
+    key = key.encode('utf-8')
+    hashed = bcrypt.hashpw(key, salt)
+    hashedKey = bcrypt.hashpw(key, salt)
+    if not hashed == hashedKey:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail=f"Invalid Credentials")
     db_spell = utils.get_spell_by_name(db, spell_name=spell.name)
+    print(db_spell)
     if db_spell:
         raise HTTPException(
             status_code=400, detail="spell with that name allready created")
