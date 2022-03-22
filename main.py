@@ -53,6 +53,13 @@ def get_spell(spell_name: str, db: Session = Depends(get_db),):
     return spell
 
 
+app.post("/test")
+
+
+def run_test(request: Request):
+    return "ya girl"
+
+
 @app.post("/spells/")
 def create_spell(request: Request, spell: schemas.SpellCreate, db: Session = Depends(get_db), ):
     key = request.query_params["key"]
